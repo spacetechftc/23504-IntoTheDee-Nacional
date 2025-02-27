@@ -1,0 +1,289 @@
+package org.firstinspires.ftc.teamcode.Autonomous;
+
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Subsystem.Valores.Constants;
+import org.firstinspires.ftc.teamcode.Subsystem.HardwareConfig;
+import org.firstinspires.ftc.teamcode.Subsystem.MathUtils;
+import org.firstinspires.ftc.teamcode.Subsystem.Slides_Methods;
+
+public class RobotActions {
+
+    public static class Lift {
+        private final HardwareConfig hw;
+        private final Slides_Methods slidesMethods;
+
+        public Lift(HardwareConfig hardwareConfig) {
+            this.hw = hardwareConfig;
+            this.slidesMethods = new Slides_Methods();
+        }
+
+        public class LiftToTarget implements Action {
+            private boolean initialized = false;
+            private final int target;
+            ElapsedTime timer = new ElapsedTime();
+
+            public LiftToTarget(int target) {
+                this.target = target;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    initialized = true;
+                    timer.reset();
+                }
+
+                double currentPositionLeft = hw.outtakeSlideL.getCurrentPosition();
+                double error = currentPositionLeft - target;
+
+
+                double power = slidesMethods.returnPIDSlideOut(currentPositionLeft, target);
+                hw.outtakeSlideL.setPower(power);
+                hw.outtakeSlideR.setPower(power);
+
+                double outtakePower;
+
+                if(target == -3700 && error <5){
+                    outtakePower =1;
+                    hw.outtake.setPower(outtakePower);
+                    hw.outtakeSlideL.setPower(0);
+                    hw.outtakeSlideR.setPower(0);
+                    return false;
+                } else if (power > 0) {
+                    outtakePower = -1;
+                    hw.outtake.setPower(outtakePower);
+                    return true;// Valor fixo de descida
+                }
+
+                hw.outtake.setPower(0);
+
+
+                // Verificação de interrupção por sensores
+                if (hw.tLeft.isPressed() || hw.tRight.isPressed()) {
+                    hw.outtakeSlideL.setPower(0);
+                    hw.outtakeSlideR.setPower(0);
+                    return false;
+                }
+
+                if(timer.seconds() > 3.5){
+                    hw.outtakeSlideL.setPower(0);
+                    hw.outtakeSlideR.setPower(0);
+                    hw.outtake.setPower(0);
+                    return false;
+                }
+                // Verifica se o erro está dentro da tolerância
+                if (Math.abs(error) <= 5) {
+                    hw.outtakeSlideL.setPower(0);
+                    hw.outtakeSlideR.setPower(0);
+                    return false;
+                } else{
+                return true;
+                }
+
+            }
+
+
+        }
+
+        public Action liftToTarget(int target) {
+            return new LiftToTarget(target);
+        }
+    }
+
+
+    public static class ExtensionControl{
+        private final HardwareConfig hw;
+        private final Slides_Methods slidesMethods;
+        ElapsedTime timer = new ElapsedTime();
+
+
+        public ExtensionControl(HardwareConfig hardwareConfig) {
+            this.hw = hardwareConfig;
+            this.slidesMethods = new Slides_Methods();
+        }
+
+        public class ExtendToTarget implements Action {
+
+            private boolean initialized = false;
+            private final int target;
+
+            public ExtendToTarget(int target) {
+                this.target = target;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    timer.reset();
+                    initialized = true;
+                }
+
+                double currentPosition = hw.intakeSlide.getCurrentPosition();
+                double power = slidesMethods.returnPIDIn(currentPosition, target);
+
+                if(target > 0){
+                    hw.intakeSlide.setPower(1);
+                } else {
+                    hw.intakeSlide.setPower(-1);
+                }
+
+                if (timer.seconds() > 0.5) {
+                    hw.intakeSlide.setPower(0);
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        public Action extendTarget(int target) {
+            return new ExtendToTarget(target);
+        }
+    }
+
+    public static class Intake{
+        private final HardwareConfig hw;
+
+        public Intake(HardwareConfig hardwareConfig){this.hw = hardwareConfig;}
+
+        public class IntakePP implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.servoIntakeL.setPosition(Constants.INTAKE_EM_PE);
+                hw.servoIntakeR.setPosition(Constants.INTAKE_EM_PE);
+                packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
+                packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
+                return false;
+            }
+        }
+
+        public Action realiseIn(){ return  new Intake.IntakePP();}
+
+        public class IntakePD implements  Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.servoIntakeL.setPosition(Constants.INTAKE_PRONTO_PARA_PEGAR);
+                hw.servoIntakeR.setPosition(Constants.INTAKE_PRONTO_PARA_PEGAR);
+                packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
+                packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
+                return false;
+            }
+        }
+        public Action grabIn(){ return new Intake.IntakePD();}
+    }
+
+    public static class Outtake{
+        private final HardwareConfig hw;
+        private final Slides_Methods slidesMethods;
+        ElapsedTime timer = new ElapsedTime();
+
+
+        public Outtake(HardwareConfig hardwareConfig) {
+            this.hw = hardwareConfig;
+            this.slidesMethods = new Slides_Methods();
+        }
+
+        public class OuttakeToTarget implements Action {
+
+            private boolean initialized = false;
+            private final int target;
+
+            public OuttakeToTarget(int target) {
+                this.target = target;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    initialized = true;
+                    timer.reset();
+                }
+
+                double currentPosition = hw.outtake.getCurrentPosition();
+                double power = slidesMethods.returnPIDOut(currentPosition, target);
+                double error = currentPosition - target;
+                hw.outtake.setPower(power);
+
+                if (Math.abs(error) <= 90) {
+                    hw.outtake.setPower(0);
+                    return false;
+                } else {
+                    return true;
+
+                }
+            }
+        }
+
+        public Action outtakeToTarget(int target) {
+            return new OuttakeToTarget(target);
+        }
+    }
+
+    public static class ClawIn{
+        private final HardwareConfig hw;
+
+        public ClawIn(HardwareConfig hardwareConfig){this.hw = hardwareConfig; }
+
+        public class CloseClaw implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.clawIn.setPosition((Constants.GARRA_INTAKE_FECHADA));
+                return false;
+            }
+        }
+
+        public Action closeClaw() {
+            return new ClawIn.CloseClaw();
+        }
+
+        public class OpenClaw implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.clawIn.setPosition(Constants.GARRA_INTAKE_ABERTA);
+                return false;
+            }
+
+        }
+
+        public Action openClaw() {return new ClawIn.OpenClaw();}
+    }
+
+    public static class ClawOut {
+        private final HardwareConfig hw;
+
+        public ClawOut(HardwareConfig hardwareConfig) {
+            this.hw = hardwareConfig;
+        }
+
+        public class CloseClaw implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                hw.clawOut.setPosition(Constants.GARRA_OUTTAKE_FECHADA);
+                return false;
+            }
+        }
+
+        public Action closeClaw() {
+            return new ClawOut.CloseClaw();
+        }
+
+        public class OpenClaw implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                hw.clawOut.setPosition(Constants.GARRA_OUTTAKE_ABERTA);
+                return false;
+            }
+        }
+
+        public Action openClaw() {
+            return new ClawOut.OpenClaw();
+        }
+    }
+
+
+}
