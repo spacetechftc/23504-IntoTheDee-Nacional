@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class HardwareConfig {
 
+    //trava Intake
+    public Servo travaL;
+    public Servo travaR;
 
     // Motores do Slide Outtake
     public DcMotorEx outtakeSlideL;
@@ -33,6 +36,12 @@ public class HardwareConfig {
     public DcMotor outtake;
 
     public HardwareConfig(HardwareMap hardwareMap) {
+
+        //ininicializando travas
+        travaL = hardwareMap.get(Servo.class, "travaL");
+        travaR = hardwareMap.get(Servo.class, "travaD");
+
+
         // Inicializando motores e definindo direções
         outtakeSlideL = hardwareMap.get(DcMotorEx.class, "mSlideL");
         outtakeSlideR = hardwareMap.get(DcMotorEx.class, "mSlideR");

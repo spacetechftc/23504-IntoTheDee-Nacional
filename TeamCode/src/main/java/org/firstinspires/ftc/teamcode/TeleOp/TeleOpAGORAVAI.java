@@ -190,8 +190,19 @@ public class TeleOpAGORAVAI extends LinearOpMode {
 
                 previousButtonRBState = currentButtonRBState;
 
-               double intakePower = gamepad2.right_stick_y;
-               hw.intakeSlide.setPower(intakePower);
+                double intakePower = gamepad2.right_stick_y;
+               if(gamepad2.right_stick_y == 0){
+                   hw.intakeSlide.setMotorDisable();
+                   hw.intakeSlide.setPower(intakePower);
+               } else if(gamepad2.right_stick_y > 0){
+                   hw.intakeSlide.setMotorEnable();
+                   hw.intakeSlide.setPower(intakePower);
+               } else if(gamepad2.right_stick_y < 0){
+                   hw.intakeSlide.setMotorEnable();
+                   hw.intakeSlide.setPower(intakePower);
+               }
+
+
 
 
                 if(action == 1){
