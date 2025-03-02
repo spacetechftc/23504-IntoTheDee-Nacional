@@ -60,16 +60,17 @@ public final class MecanumDrive {
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
                 RevHubOrientationOnRobot.LogoFacingDirection.DOWN;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
         // drive model parameters
-        public double inPerTick = 0.0030045067601402;
-        public double lateralInPerTick =  0.0011241208975217589;
-        public double trackWidthTicks = 4473.559040243933;
+        // drive model parameters
+        public double inPerTick = 0.0029757753289627;
+        public double lateralInPerTick = 0.0033089111871790586;
+        public double trackWidthTicks = 6086.94738805013;
 
         // feedforward parameters (in tick units)
-        public double kS =  1.6581329999957508;
-        public double kV = 0.0006775029708190252;
+        public double kS = 1.0188010498231361;
+        public double kV =  0.0007510937224842198;
         public double kA = 0.0001;
 
         // path profile parameters (in inches)
@@ -82,13 +83,13 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 4;
+        public double axialGain = 5;
         public double lateralGain = 3.35;
-        public double headingGain = 12.45; // shared with turn
+        public double headingGain = 15.45; // shared with turn
 
         public double axialVelGain = 0.0;
-        public double lateralVelGain = 0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double lateralVelGain = 0.0;
+        public double headingVelGain = 1.5; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -140,6 +141,7 @@ public final class MecanumDrive {
 
             // TODO: reverse encoders if needed
             //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
         }
 
         @Override
@@ -217,15 +219,15 @@ public final class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "par1");
+        leftFront = hardwareMap.get(DcMotorEx.class, "par0");
         leftBack = hardwareMap.get(DcMotorEx.class, "mET");
-        rightBack = hardwareMap.get(DcMotorEx.class, "par0");
+        rightBack = hardwareMap.get(DcMotorEx.class, "par1");
         rightFront = hardwareMap.get(DcMotorEx.class, "perp");
 
         leftBack.setDirection(DcMotorEx.Direction.FORWARD);
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
-        rightFront.setDirection(DcMotorEx.Direction.REVERSE);
-        rightBack.setDirection(DcMotorEx.Direction.FORWARD);
+        rightFront.setDirection(DcMotorEx.Direction.FORWARD);
+        rightBack.setDirection(DcMotorEx.Direction.REVERSE);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

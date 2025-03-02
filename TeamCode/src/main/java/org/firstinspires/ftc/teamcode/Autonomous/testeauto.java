@@ -1,4 +1,4 @@
-/* package org.firstinspires.ftc.teamcode.Autonomous;
+/*package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
@@ -15,115 +15,26 @@ import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Camera.AprilTagDetectionPipeline;
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Subsystem.Valores.Constants;
 import org.firstinspires.ftc.teamcode.Subsystem.HardwareConfig;
-import org.openftc.apriltag.AprilTagDetection;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 
-
-import java.util.ArrayList;
 import java.util.Arrays;
-
-@Autonomous(name = "MainInto", group = "Autonomous")
-public class MainIntoTheDeep extends LinearOpMode {
-
-    double fx = 578.272;
-    double fy = 578.272;
-    double cx = 402.145;
-    double cy = 221.506;
-    double tagsize = 0.166;
-
+@Autonomous
+public class testeauto extends LinearOpMode {
     @Override
     public void runOpMode() {
-        HardwareConfig hw = new HardwareConfig(hardwareMap);
 
-        hw.clawIn.setPosition(Constants.GARRA_INTAKE_ABERTA);
-        sleep(500);
-        hw.outtake.setPower(0.1);
-        hw.outtake.setTargetPosition(Constants.OUTTAKE_PRONTO_PARA_PEGAR);
-        hw.servoIntakeL.setPosition(Constants.INTAKE_EM_PE);
-        hw.servoIntakeR.setPosition(Constants.INTAKE_EM_PE);
-
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        OpenCvCamera camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Cam"), cameraMonitorViewId);
-        AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
-        camera.setPipeline(aprilTagDetectionPipeline);
-
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-            }
-        });
-
-
-        AprilTagDetection tagOfInterest = null;
-
-        while (!isStarted() && !isStopRequested()) {
-            if (gamepad1.a){
-                hw.clawOut.setPosition(Constants.GARRA_OUTTAKE_ABERTA);
-            } else {
-                hw.clawOut.setPosition(Constants.GARRA_OUTTAKE_FECHADA);
-            }
-
-            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-
-            if (!currentDetections.isEmpty()) {
-                for (AprilTagDetection tag : currentDetections) {
-                    if (tag.id == 13 || tag.id == 11 || tag.id == 16 || tag.id == 15) {
-                        tagOfInterest = tag;
-                        telemetry.addLine("AprilTag de interesse detectada!");
-                        telemetry.addData("Tag ID:", tagOfInterest.id);
-                        break;
-                    }
-                }
-            } else {
-                telemetry.addLine("Nenhuma AprilTag detectada.");
-            }
-
-            telemetry.update();
-            sleep(20);
-        }
 
         waitForStart();
+        Actions.runBlocking(
+                BlueLeft()
+        );
 
-        if (tagOfInterest != null) {
-            switch (tagOfInterest.id) {
-                case 13:
-                case 16:
-                    Actions.runBlocking(
-                            BlueLeft()
-                    );
-                    break;
-                case 11:
-                case 14:
-                    Actions.runBlocking(
-                            RedRight()
-                    );
-                    break;
-                default:
-                    BlueLeft();
-                    break;
-            }
-        } else {
-            telemetry.addLine("Nenhuma tag foi avistada durante o INIT, executando a ação padrão.");
-            telemetry.update();
-        }
     }
 
-    private Action BlueLeft() {
+    private Action BlueLeft(){
         Pose2d initialPose = new Pose2d(33.3, 61, Math.toRadians(0));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
@@ -219,36 +130,7 @@ public class MainIntoTheDeep extends LinearOpMode {
                 .setTangent(Math.toRadians(230))
                 .splineToLinearHeading(new Pose2d(25, 14, Math.toRadians(270)), Math.toRadians(180), null, new ProfileAccelConstraint(-250, 250))
                 .endTrajectory();
-
         return tab1.build();
     }
-
-    private Action RedRight() {
-        Pose2d initialPose = new Pose2d(18, -61, Math.toRadians(0));
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-
-        VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
-                new TranslationalVelConstraint(50.0),
-                new AngularVelConstraint(Math.PI/2)
-        ));
-
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-65, 20);
-
-        TrajectoryActionBuilder ArrastarBlocosVerm = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(53, -10), Math.toRadians(270))
-                .lineToY(-61)
-                .lineToY(-10)
-                .strafeTo(new Vector2d(63, -10))
-                .setTangent(Math.toRadians(270))
-                .lineToY(-61)
-                .endTrajectory();
-
-        return ArrastarBlocosVerm.build();
-    }
-
-
-
 }
-
- */
-
+*/

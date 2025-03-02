@@ -89,17 +89,31 @@ public class TeleOpAGORAVAI extends LinearOpMode {
 
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
-                double power = gamepad2.left_stick_y;
+                double power = -gamepad2.left_stick_y;
                 hw.outtakeSlideL.setPower(power);
                 hw.outtakeSlideR.setPower(power);
+
+                telemetry.addData("SlidePosL", hw.outtakeSlideL.getCurrentPosition());
+                telemetry.addData("SlidePosD", hw.outtakeSlideR.getCurrentPosition());
+
+
                 double outtakepower;
+
+                if(gamepad1.dpad_up){
+                    hw.outtake.setPower(0.75);
+                } else if(gamepad1.dpad_down){
+                    hw.outtake.setPower(-0.75);
+                } else{
+                    hw.outtake.setPower(0);
+                }
+
 
 
                 if(power < 0) {
-                    outtakepower = MathUtils.map(Math.abs(hw.outtakeSlideL.getCurrentPosition()), 200, 3700, -0.5, 0.5);
+                    outtakepower = MathUtils.map(Math.abs(hw.outtakeSlideR.getCurrentPosition()), 500, 3500, -0.75, 0.75);
                     hw.outtake.setPower(outtakepower);
                 } else if (power > 0){
-                    outtakepower = -0.5;
+                    outtakepower = -0.75;
                     hw.outtake.setPower(outtakepower);
                 }
 
@@ -108,12 +122,12 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     Actions.runBlocking(new SequentialAction(
                             garraOut.openClaw(),
                             garraIn.closeClaw(),
-                            new SleepAction(0.5)
+                            bracointake.pass(),
+                            new SleepAction(1)
 
                     ));
                     Actions.runBlocking(new ParallelAction(
-                            bracointake.realiseIn(),
-                            extensionControl.extendTarget(90)
+                            extensionControl.extendTarget(200)
                     ));
                     Actions.runBlocking(new SequentialAction(
                             new SleepAction(0.5),
@@ -133,13 +147,13 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     if (currentArmState) {
                         action = 1;
                         runningActions.add(new SequentialAction(
-                                bracointake.grabIn()
+                                bracointake.VertColet()
                         ));
                         action = 0;
                     } else {
                         action = 1;
                         runningActions.add(new SequentialAction(
-                                bracointake.realiseIn()
+                                bracointake.pass()
                         ));
                         action = 0;
                     }
@@ -176,7 +190,7 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     if (currentClawOutState) {
                         action = 1;
                         runningActions.add(new SequentialAction(
-                                garraIn.openClaw()
+                                garraIn.midClaw()
                         ));
                         action = 0;
                     } else{
@@ -212,6 +226,9 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                    drive.rightFront.setPower(0);
                 }
 
+                telemetry.addData("DifL", hw.servoIntakeL.getPosition());
+                telemetry.addData("DifD", hw.servoIntakeR.getPosition());
+                telemetry.update();
 
 
             }

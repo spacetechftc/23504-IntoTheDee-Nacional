@@ -127,12 +127,12 @@ public class RobotActions {
                 double power = slidesMethods.returnPIDIn(currentPosition, target);
 
                 if(target > 0){
-                    hw.intakeSlide.setPower(1);
+                    hw.intakeSlide.setPower(0.85);
                 } else {
-                    hw.intakeSlide.setPower(-1);
+                    hw.intakeSlide.setPower(-0.85);
                 }
 
-                if (timer.seconds() > 0.5) {
+                if (timer.seconds() > 3) {
                     hw.intakeSlide.setPower(0);
                     return false;
                 }
@@ -154,27 +154,27 @@ public class RobotActions {
         public class IntakePP implements Action{
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                hw.servoIntakeL.setPosition(Constants.INTAKE_EM_PE);
-                hw.servoIntakeR.setPosition(Constants.INTAKE_EM_PE);
+                hw.servoIntakeL.setPosition(Constants.INTAKE_COLETAR_VERTICAL_L);
+                hw.servoIntakeR.setPosition(Constants. INTAKE_COLETAR_VERTICAL_D);
                 packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
                 packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
                 return false;
             }
         }
 
-        public Action realiseIn(){ return  new Intake.IntakePP();}
+        public Action VertColet(){ return  new Intake.IntakePP();}
 
         public class IntakePD implements  Action{
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                hw.servoIntakeL.setPosition(Constants.INTAKE_PRONTO_PARA_PEGAR);
-                hw.servoIntakeR.setPosition(Constants.INTAKE_PRONTO_PARA_PEGAR);
+                hw.servoIntakeL.setPosition(Constants.INTAKE_PASSAGEM_L);
+                hw.servoIntakeR.setPosition(Constants.INTAKE_PASSAGEM_D);
                 packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
                 packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
                 return false;
             }
         }
-        public Action grabIn(){ return new Intake.IntakePD();}
+        public Action pass(){ return new Intake.IntakePD();}
     }
 
     public static class Outtake{
@@ -251,6 +251,19 @@ public class RobotActions {
         }
 
         public Action openClaw() {return new ClawIn.OpenClaw();}
+
+
+        public class MidClaw implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.clawIn.setPosition(Constants.GARRA_INTAKE_MED);
+                return false;
+            }
+        }
+
+        public Action midClaw() {return new ClawIn.MidClaw();}
+
+
     }
 
     public static class ClawOut {

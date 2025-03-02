@@ -9,9 +9,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class HardwareConfig {
 
-    //trava Intake
-    public Servo travaL;
-    public Servo travaR;
 
     // Motores do Slide Outtake
     public DcMotorEx outtakeSlideL;
@@ -37,9 +34,6 @@ public class HardwareConfig {
 
     public HardwareConfig(HardwareMap hardwareMap) {
 
-        //ininicializando travas
-        travaL = hardwareMap.get(Servo.class, "travaL");
-        travaR = hardwareMap.get(Servo.class, "travaD");
 
 
         // Inicializando motores e definindo direções
@@ -60,6 +54,11 @@ public class HardwareConfig {
         servoIntakeL.setDirection(Servo.Direction.REVERSE);
 
         outtakeSlideL.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        //configura direção do outtake
+        outtake.setDirection(DcMotorSimple.Direction.REVERSE
+        );
 
         clawIn.setDirection(Servo.Direction.REVERSE);
         clawOut.setDirection(Servo.Direction.REVERSE);
