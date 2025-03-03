@@ -15,6 +15,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.firstinspires.ftc.teamcode.Autonomous.RobotActions;
@@ -52,6 +53,10 @@ public class TeleOpAGORAVAI extends LinearOpMode {
         RobotActions.Intake bracointake = new RobotActions.Intake(hardwareConfig);
         RobotActions.ClawIn garraIn = new RobotActions.ClawIn(hardwareConfig);
         RobotActions.ExtensionControl extensionControl = new RobotActions.ExtensionControl(hardwareConfig);
+        RobotActions.Outtake outtakeArm = new RobotActions.Outtake(hardwareConfig);
+        ElapsedTime timerout = new ElapsedTime();
+        double ccout = 0;
+        double cctime = 2;
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -97,7 +102,7 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                 telemetry.addData("SlidePosD", hw.outtakeSlideR.getCurrentPosition());
 
 
-                double outtakepower;
+                double outtakepower = 0;
 
                 if(gamepad1.dpad_up){
                     hw.outtake.setPower(0.75);
@@ -107,27 +112,51 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     hw.outtake.setPower(0);
                 }
 
+//
+//                if(hw.outtakeSlideL.getCurrentPosition() > 3000 && ccout == 0 && power<1 || cctime == 0){
+//                    timerout.reset();
+//                    hw.outtake.setPower(-1);
+//                    if(timerout.seconds() > 1) {
+//                        hw.outtake.setPower(0);
+//                        ccout = 1;
+//                        cctime =1;
+//                    } else{
+//                        cctime = 0;
+//                    }
+//                }
+//                if(hw.outtakeSlideL.getCurrentPosition() < 1000 && ccout == 1 && power > 1 || cctime == 0){
+//                    timerout.reset();
+//                    hw.outtake.setPower(1);
+//                    if(timerout.seconds() > 1) {
+//                        hw.outtake.setPower(0);
+//                        ccout = 0;
+//                        cctime = 1;
+//                    }else{
+//                        cctime = 0;
+//                    }
+//                }
 
 
-                if(power < 0) {
-                    outtakepower = MathUtils.map(Math.abs(hw.outtakeSlideR.getCurrentPosition()), 500, 3500, -0.75, 0.75);
-                    hw.outtake.setPower(outtakepower);
-                } else if (power > 0){
-                    outtakepower = -0.75;
-                    hw.outtake.setPower(outtakepower);
-                }
+
+
+                telemetry.addData("outpower", outtakepower);
+
+
+
 
                 if (gamepad2.b) {
                     action = 1;
                     Actions.runBlocking(new SequentialAction(
                             garraOut.openClaw(),
                             garraIn.closeClaw(),
-                            bracointake.pass(),
+                            new SleepAction(0.5),
+                            bracointake.retract(),
                             new SleepAction(1)
 
                     ));
-                    Actions.runBlocking(new ParallelAction(
-                            extensionControl.extendTarget(200)
+                    Actions.runBlocking(new SequentialAction(
+                            extensionControl.extendTarget(200),
+                            bracointake.pass()
                     ));
                     Actions.runBlocking(new SequentialAction(
                             new SleepAction(0.5),
@@ -153,7 +182,7 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     } else {
                         action = 1;
                         runningActions.add(new SequentialAction(
-                                bracointake.pass()
+                                bracointake.retract()
                         ));
                         action = 0;
                     }

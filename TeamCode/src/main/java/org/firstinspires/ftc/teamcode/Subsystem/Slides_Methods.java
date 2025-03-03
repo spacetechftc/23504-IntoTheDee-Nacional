@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystem;
 
+import static org.firstinspires.ftc.teamcode.Anexos.PIDF.VSlidePIDF.target;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -25,6 +27,8 @@ public class Slides_Methods {
     public static final double ticks_in_degreeOut = 288.0 / 180;
     public static final double ticks_in_degreeInt = 765 * -0.3 / 180;
 
+    static PIDController controllerOut = new PIDController(pOut, iOut, dOut);
+
 
     public static double returnPIDSlideOut(double currentPos, double target) {
         PIDController controllerSOut = new PIDController(psOut, isOut, dsOut);
@@ -35,13 +39,23 @@ public class Slides_Methods {
     }
 
     public static double returnPIDOut(double currentPos, double target) {
-        PIDController controllerOut = new PIDController(pOut, iOut, dOut);
+
         controllerOut.setPID(pOut, iOut, dOut);
+        controllerOut.setSetPoint(target);
+        controllerOut.setTolerance(10);
         double pid = controllerOut.calculate(currentPos, target);
         double ff = Math.cos(Math.toRadians(target / ticks_in_degreeOut)) * fOut;
 
         return pid + ff;
     }
+
+    public static boolean OutIsAtSetpoint(){
+        controllerOut.setSetPoint(target);
+        return controllerOut.atSetPoint();
+    }
+
+
+
 
     public static double returnPIDIn(double currentPos, double target) {
         PIDController controllerIn = new PIDController(pIn, iIn, dIn);

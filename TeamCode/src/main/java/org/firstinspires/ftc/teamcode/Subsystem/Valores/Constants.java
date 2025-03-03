@@ -11,8 +11,11 @@ public class Constants {
                 public static double INTAKE_COLETAR_VERTICAL_L = 1;
                 public static double INTAKE_COLETAR_VERTICAL_D = 1;
 
-                public static double INTAKE_PASSAGEM_L = 0.1839;
-                public static double INTAKE_PASSAGEM_D = 0.3084;
+                public static double INTAKE_PASSAGEM_L = 0.1877;
+                public static double INTAKE_PASSAGEM_D = 0.1877;
+
+                public static double INTAKE_RETRO_L = 0.0793;
+                public static double INTAKE_RETRO_D = 0.0793;
 
                 public static double INTAKE_COLETA_HORIZONTAL_L = 1;
                 public static double INTAKE_COLETA_HORIZOLTAL_D = 0.8001;

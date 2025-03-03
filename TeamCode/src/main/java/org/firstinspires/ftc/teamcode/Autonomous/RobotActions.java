@@ -48,7 +48,7 @@ public class RobotActions {
 
                 double outtakePower;
 
-                if(target == -3700 && error <5){
+                if(target == -3250 && error <5){
                     outtakePower =1;
                     hw.outtake.setPower(outtakePower);
                     hw.outtakeSlideL.setPower(0);
@@ -126,10 +126,11 @@ public class RobotActions {
                 double currentPosition = hw.intakeSlide.getCurrentPosition();
                 double power = slidesMethods.returnPIDIn(currentPosition, target);
 
+
                 if(target > 0){
-                    hw.intakeSlide.setPower(0.85);
+                    hw.intakeSlide.setPower(1);
                 } else {
-                    hw.intakeSlide.setPower(-0.85);
+                    hw.intakeSlide.setPower(-1);
                 }
 
                 if (timer.seconds() > 3) {
@@ -163,6 +164,18 @@ public class RobotActions {
         }
 
         public Action VertColet(){ return  new Intake.IntakePP();}
+
+        public class IntakeRR implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.servoIntakeL.setPosition(Constants.INTAKE_RETRO_L);
+                hw.servoIntakeR.setPosition(Constants.INTAKE_RETRO_D);
+                packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
+                packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
+                return false;
+            }
+        }
+        public Action retract(){ return  new Intake.IntakeRR();}
 
         public class IntakePD implements  Action{
             @Override
@@ -209,7 +222,7 @@ public class RobotActions {
                 double error = currentPosition - target;
                 hw.outtake.setPower(power);
 
-                if (Math.abs(error) <= 90) {
+                if (Slides_Methods.OutIsAtSetpoint()) {
                     hw.outtake.setPower(0);
                     return false;
                 } else {
