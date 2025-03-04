@@ -28,12 +28,14 @@ public class Slides_Methods {
     public static final double ticks_in_degreeInt = 765 * -0.3 / 180;
 
     static PIDController controllerOut = new PIDController(pOut, iOut, dOut);
+    static PIDController controllerSOut = new PIDController(psOut, isOut, dsOut);
 
 
     public static double returnPIDSlideOut(double currentPos, double target) {
-        PIDController controllerSOut = new PIDController(psOut, isOut, dsOut);
+
         controllerSOut.setPID(psOut, isOut, dsOut);
         double pid = controllerSOut.calculate(currentPos, target);
+        controllerOut.setTolerance(20);
         double ff = Math.cos(Math.toRadians(target / ticks_in_degreeSlideOut)) * fsOut;
         return pid + ff;
     }
@@ -52,6 +54,12 @@ public class Slides_Methods {
     public static boolean OutIsAtSetpoint(){
         controllerOut.setSetPoint(target);
         return controllerOut.atSetPoint();
+    }
+
+    public static boolean SlideOutIsAtSetpoint(){
+        controllerSOut.setSetPoint(target);
+        controllerOut.setTolerance(10);
+        return controllerSOut.atSetPoint();
     }
 
 

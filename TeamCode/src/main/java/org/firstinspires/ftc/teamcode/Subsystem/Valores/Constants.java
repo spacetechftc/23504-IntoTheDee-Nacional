@@ -36,7 +36,7 @@ public class Constants {
                 public static double GARRA_INTAKE_MED = 0.5;
 
                 // Garra Outtake
-                public static  double GARRA_OUTTAKE_ABERTA = 1;
-                public static  double GARRA_OUTTAKE_FECHADA = 0.0;
+                public static  double GARRA_OUTTAKE_ABERTA = 0;
+                public static  double GARRA_OUTTAKE_FECHADA = 1;
 
 }

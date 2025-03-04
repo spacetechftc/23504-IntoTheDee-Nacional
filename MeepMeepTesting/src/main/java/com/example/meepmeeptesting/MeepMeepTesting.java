@@ -19,21 +19,22 @@ import java.util.Arrays;
 public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
+        Pose2d initialPose = new Pose2d(38, 61, Math.toRadians(270));
 
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(50.0),
                 new AngularVelConstraint(Math.PI/2)
         ));
 
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-80, 80);
+        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-30, 50);
 
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(33, 61, 0))
+        myBot.runAction(myBot.getDrive().actionBuilder(initialPose)
                 //Deposito
                 .splineTo(new Vector2d(52.89383390875461, 51.97265295027128), Math.toRadians(220), baseVelConstraint, baseAccelConstraint)
                 //Primeiro sample

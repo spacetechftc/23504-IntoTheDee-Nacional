@@ -62,15 +62,16 @@ public final class MecanumDrive {
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
                 RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
+
+
         // drive model parameters
-        // drive model parameters
-        public double inPerTick = 0.0029757753289627;
-        public double lateralInPerTick = 0.0033089111871790586;
-        public double trackWidthTicks = 6086.94738805013;
+        public double inPerTick = 0.002995763;
+        public double lateralInPerTick = 0.003342463459107826;
+        public double trackWidthTicks = 5742.1136732902405;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.0188010498231361;
-        public double kV =  0.0007510937224842198;
+        public double kS = 1.4200593120856695;
+        public double kV = 0.0006903934677496036;
         public double kA = 0.0001;
 
         // path profile parameters (in inches)
@@ -84,12 +85,13 @@ public final class MecanumDrive {
 
         // path controller gains
         public double axialGain = 5;
-        public double lateralGain = 3.35;
+        public double lateralGain = 4.35;
         public double headingGain = 15.45; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 1.5; // shared with turn
+        public double axialVelGain = 2.5;
+        public double lateralVelGain = 2;
+        public double headingVelGain = 1; // shared with turn
+
     }
 
     public static Params PARAMS = new Params();
@@ -219,10 +221,10 @@ public final class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "par0");
-        leftBack = hardwareMap.get(DcMotorEx.class, "mET");
-        rightBack = hardwareMap.get(DcMotorEx.class, "par1");
-        rightFront = hardwareMap.get(DcMotorEx.class, "perp");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rightFront");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightBack");
 
         leftBack.setDirection(DcMotorEx.Direction.FORWARD);
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);

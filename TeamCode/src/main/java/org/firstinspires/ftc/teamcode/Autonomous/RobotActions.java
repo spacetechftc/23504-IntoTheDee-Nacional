@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Subsystem.Valores.Constants;
@@ -24,7 +25,7 @@ public class RobotActions {
 
         public class LiftToTarget implements Action {
             private boolean initialized = false;
-            private final int target;
+                                                    private final int target;
             ElapsedTime timer = new ElapsedTime();
 
             public LiftToTarget(int target) {
@@ -35,6 +36,12 @@ public class RobotActions {
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
                     initialized = true;
+                    if(target != 0) {
+                        hw.outtakeSlideL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        hw.outtakeSlideR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        hw.outtakeSlideL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        hw.outtakeSlideR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    }
                     timer.reset();
                 }
 
@@ -48,26 +55,39 @@ public class RobotActions {
 
                 double outtakePower;
 
-                if(target == -3250 && error <5){
-                    outtakePower =1;
-                    hw.outtake.setPower(outtakePower);
+                if(target == 3200){
+                    if(Slides_Methods.SlideOutIsAtSetpoint() || currentPositionLeft >= target - 100){
+
+                        hw.outtakeSlideL.setPower(0);
+                        hw.outtakeSlideR.setPower(0);
+                        return false;
+
+                    } else if (power > 0) {
+                        return true;// Valor fixo de descida
+                    }
+                }
+
+                if(Slides_Methods.SlideOutIsAtSetpoint()){
+
                     hw.outtakeSlideL.setPower(0);
                     hw.outtakeSlideR.setPower(0);
                     return false;
+
                 } else if (power > 0) {
-                    outtakePower = -1;
-                    hw.outtake.setPower(outtakePower);
                     return true;// Valor fixo de descida
                 }
 
                 hw.outtake.setPower(0);
 
 
-                // Verificação de interrupção por sensores
-                if (hw.tLeft.isPressed() || hw.tRight.isPressed()) {
-                    hw.outtakeSlideL.setPower(0);
-                    hw.outtakeSlideR.setPower(0);
-                    return false;
+
+                if(target == 0) {
+                    // Verificação de interrupção por sensores
+                    if (hw.tLeft.isPressed() || hw.tRight.isPressed()) {
+                        hw.outtakeSlideL.setPower(0);
+                        hw.outtakeSlideR.setPower(0);
+                        return false;
+                    }
                 }
 
                 if(timer.seconds() > 3.5){
@@ -76,13 +96,9 @@ public class RobotActions {
                     hw.outtake.setPower(0);
                     return false;
                 }
-                // Verifica se o erro está dentro da tolerância
-                if (Math.abs(error) <= 5) {
-                    hw.outtakeSlideL.setPower(0);
-                    hw.outtakeSlideR.setPower(0);
-                    return false;
-                } else{
-                return true;
+
+                else{
+                    return true;
                 }
 
             }
@@ -193,7 +209,7 @@ public class RobotActions {
     public static class Outtake{
         private final HardwareConfig hw;
         private final Slides_Methods slidesMethods;
-        ElapsedTime timer = new ElapsedTime();
+        ElapsedTime timerout = new ElapsedTime();
 
 
         public Outtake(HardwareConfig hardwareConfig) {
@@ -210,19 +226,24 @@ public class RobotActions {
                 this.target = target;
             }
 
+
+
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
                     initialized = true;
-                    timer.reset();
+                    timerout.reset();
                 }
 
-                double currentPosition = hw.outtake.getCurrentPosition();
-                double power = slidesMethods.returnPIDOut(currentPosition, target);
-                double error = currentPosition - target;
-                hw.outtake.setPower(power);
 
-                if (Slides_Methods.OutIsAtSetpoint()) {
+                if (target > 1){
+                    hw.outtake.setPower(1);
+                } else {
+                    hw.outtake.setPower(-1);
+                }
+
+
+                if (timerout.seconds() >1) {
                     hw.outtake.setPower(0);
                     return false;
                 } else {
