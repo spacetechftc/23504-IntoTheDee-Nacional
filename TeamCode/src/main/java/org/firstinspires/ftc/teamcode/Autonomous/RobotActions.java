@@ -48,13 +48,16 @@ public class RobotActions {
                 hw.outtakeSlideR.setPower(power);
 
 
-                if(target == 3100 && error <5){
+                if((target == 3100 || target == 1225 || target == 1275) && error <5){
                     hw.outtakeSlideL.setPower(0.1);
                     hw.outtakeSlideR.setPower(0.1);
                     return false;
                 } else if (power > 0) {
                     return true;// Valor fixo de descida
                 }
+
+
+
 
                 hw.outtake.setPower(0);
 
@@ -67,7 +70,7 @@ public class RobotActions {
                 }
 
                 if(timer.seconds() > 3.5){
-                    if (target == 3100) {
+                    if ((target == 3100 || target == 1225) || (target == 1275)) {
                         hw.outtakeSlideL.setPower(0.1);
                         hw.outtakeSlideR.setPower(0.1);
                     } else if( target== 0 ){
@@ -78,7 +81,7 @@ public class RobotActions {
                 }
                 // Verifica se o erro está dentro da tolerância
                 if (Math.abs(error) <= 5) {
-                    if (target == 3100) {
+                    if ((target == 3100 || target == 1225) || (target == 1275)) {
                         hw.outtakeSlideL.setPower(0.1);
                         hw.outtakeSlideR.setPower(0.1);
                     } else if (target == 0){

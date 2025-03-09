@@ -106,7 +106,7 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                 drive.setDrivePowers(new PoseVelocity2d(
                         new Vector2d(
                                 -gamepad1.left_stick_y,
-                                -gamepad1.left_stick_x
+                                gamepad1.left_stick_x
                         ),
                         -gamepad1.right_stick_x
                 ));
@@ -143,9 +143,9 @@ public class TeleOpAGORAVAI extends LinearOpMode {
 
                 double outtakepower = 0;
 
-                if(gamepad1.dpad_up){
+                if(gamepad2.dpad_up){
                     hw.outtake.setPower(0.75);
-                } else if(gamepad1.dpad_down){
+                } else if(gamepad2.dpad_down){
                     hw.outtake.setPower(-0.75);
                 } else{
                     hw.outtake.setPower(0);
@@ -206,23 +206,6 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                 }
 
 
-                if(gamepad1.left_bumper){
-                    ori = -1;
-                }
-
-                if(gamepad1.right_bumper){
-                    ori = -2;
-                }
-
-
-                if(ori == -1){
-                    orientacao = "Horizontal";
-                } else if(ori == -2){
-                    orientacao = "Vertical";
-                } else {
-                    orientacao = "NOT";
-                }
-
 
                 //Braço Intake
                 boolean currentXButtonState = gamepad2.x;
@@ -231,17 +214,10 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     currentArmState = !currentArmState;
                     if (currentArmState) {
                         action = 1;
-                        if (orientacao.equals("Horizontal")) {
                             runningActions.add(new SequentialAction(
                                     bracointake.VertColet()
                             ));
-                        } else if (orientacao.equals("Vertical")) {
-                            runningActions.add(new SequentialAction(
-                                    bracointake.HorColet()
-                            ));
-                        } else{
 
-                        }
                         action = 0;
                     } else {
                         action = 1;
