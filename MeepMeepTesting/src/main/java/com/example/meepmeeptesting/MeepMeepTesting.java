@@ -26,27 +26,23 @@ public class MeepMeepTesting {
                 new AngularVelConstraint(Math.PI/2)
         ));
 
-        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-30, 50);
+        AccelConstraint baseAccelConstraint = new ProfileAccelConstraint(-30, 30);
 
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(30, 30, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(initialPose)
                 //Deposito
-                .splineTo(new Vector2d(52.89383390875461, 51.97265295027128), Math.toRadians(220), baseVelConstraint, baseAccelConstraint)
-                //Primeiro sample
-                .splineTo(new Vector2d( 48.464445832304484,43.2), Math.toRadians(270), null, baseAccelConstraint)
-                //Deposito primeiro sample
-                .strafeToLinearHeading(new Vector2d( 53.882067894113916, 50.47508719599699), Math.toRadians(230), baseVelConstraint, baseAccelConstraint)
-                //2° Amostra do meio
-                .strafeToLinearHeading(new Vector2d( 59.8569050492192, 43.842050718476024), Math.toRadians(270), baseVelConstraint, baseAccelConstraint)
-                //Deposito segunda a mostra
-                .strafeToLinearHeading(new Vector2d(52.89383390875461,  51.97265295027128), Math.toRadians(230), baseVelConstraint, baseAccelConstraint)
-                .setTangent(Math.toRadians(230))
-                .splineToLinearHeading(new Pose2d(25, 14, Math.toRadians(270)), Math.toRadians(180), null, new ProfileAccelConstraint(-250, 250))
+                .lineToYConstantHeading(53)
+                .turnTo(Math.toRadians(325))
+                .lineToYConstantHeading(49)
+                .turnTo(Math.toRadians(225))
+                .lineToYConstantHeading(58)
+                .lineToX(49)
+                .strafeToLinearHeading(new Vector2d(49, 58), Math.toRadians(270))
                 .endTrajectory()
                 .build());
 

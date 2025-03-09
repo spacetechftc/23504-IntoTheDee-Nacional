@@ -12,9 +12,13 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -42,13 +46,24 @@ public class TeleOpAGORAVAI extends LinearOpMode {
     boolean currentArmState= false;
     boolean previousXButtonState = false;
 
+    double ori;
+
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
+    private int currentPipeline = -1; // Para evitar mudanças desnecessárias de pipeline
+    private String orientacao;
+    private int validDetectionCount = 0;
+    double robotAngle;
+    private Limelight3A limelight;
+
+
     @Override
     public void runOpMode() throws InterruptedException {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         HardwareConfig hw = new HardwareConfig(hardwareMap);
         HardwareConfig hardwareConfig = new HardwareConfig(hardwareMap);
+
         RobotActions.ClawOut garraOut = new RobotActions.ClawOut(hardwareConfig);
         RobotActions.Intake bracointake = new RobotActions.Intake(hardwareConfig);
         RobotActions.ClawIn garraIn = new RobotActions.ClawIn(hardwareConfig);
@@ -58,15 +73,35 @@ public class TeleOpAGORAVAI extends LinearOpMode {
         double ccout = 0;
         double cctime = 2;
 
+
+
+        telemetry.setMsTransmissionInterval(50);
+
+        limelight.pipelineSwitch(0); // Definir um pipeline inicial
+        currentPipeline = 0;
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
             waitForStart();
+            limelight.start();
 
             while (opModeIsActive()) {
 
+//                LLResult result = limelight.getLatestResult();
+//                if (result != null && result.isValid()) {
+//                    validDetectionCount++;
+//                    if (validDetectionCount >= 3) { // Requer 3 leituras válidas consecutivas
+//                        processColorResults(result);
+//                        validDetectionCount = 0; // Reseta após atualizar
+//                    }
+//                } else {
+//                    validDetectionCount = 0;
+//                    telemetry.addData("Limelight", "No valid data");
+//                }
+                telemetry.update();
 
                 drive.setDrivePowers(new PoseVelocity2d(
                         new Vector2d(
@@ -100,6 +135,10 @@ public class TeleOpAGORAVAI extends LinearOpMode {
 
                 telemetry.addData("SlidePosL", hw.outtakeSlideL.getCurrentPosition());
                 telemetry.addData("SlidePosD", hw.outtakeSlideR.getCurrentPosition());
+
+
+
+//                Pipe();
 
 
                 double outtakepower = 0;
@@ -156,9 +195,7 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     ));
                     Actions.runBlocking(new SequentialAction(
                             extensionControl.extendTarget(200),
-                            bracointake.pass()
-                    ));
-                    Actions.runBlocking(new SequentialAction(
+                            bracointake.pass(),
                             new SleepAction(0.5),
                             garraOut.closeClaw(),
                             new SleepAction(0.5),
@@ -168,6 +205,25 @@ public class TeleOpAGORAVAI extends LinearOpMode {
 
                 }
 
+
+                if(gamepad1.left_bumper){
+                    ori = -1;
+                }
+
+                if(gamepad1.right_bumper){
+                    ori = -2;
+                }
+
+
+                if(ori == -1){
+                    orientacao = "Horizontal";
+                } else if(ori == -2){
+                    orientacao = "Vertical";
+                } else {
+                    orientacao = "NOT";
+                }
+
+
                 //Braço Intake
                 boolean currentXButtonState = gamepad2.x;
 
@@ -175,9 +231,17 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     currentArmState = !currentArmState;
                     if (currentArmState) {
                         action = 1;
-                        runningActions.add(new SequentialAction(
-                                bracointake.VertColet()
-                        ));
+                        if (orientacao.equals("Horizontal")) {
+                            runningActions.add(new SequentialAction(
+                                    bracointake.VertColet()
+                            ));
+                        } else if (orientacao.equals("Vertical")) {
+                            runningActions.add(new SequentialAction(
+                                    bracointake.HorColet()
+                            ));
+                        } else{
+
+                        }
                         action = 0;
                     } else {
                         action = 1;
@@ -267,4 +331,105 @@ public class TeleOpAGORAVAI extends LinearOpMode {
         }
     }
 
-}
+//    private void processColorResults(LLResult result) {
+//        List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
+//
+//        for (LLResultTypes.ColorResult cr : colorResults) {
+//            if (cr.getTargetCorners() == null || cr.getTargetCorners().size() < 2) {
+//                telemetry.addData("Erro", "Não há cantos suficientes detectados!");
+//                continue;
+//            }
+//
+//            double robotAngle = cr.getTargetXDegrees();
+//            double angle = calculateAngle(cr);
+//            orientacao = calculateOrientation(angle); // Determina a orientação com base no ângulo
+//            telemetry.addData("Ângulo", angle);
+//            telemetry.addData("Orientação", orientacao);
+//        }
+//    }
+//
+//    private double calculateAngle(LLResultTypes.ColorResult cr) {
+//        List<List<Double>> corners = cr.getTargetCorners();
+//        if (corners == null || corners.size() < 2) {
+//            return 0; // Proteção contra erros
+//        }
+//
+//        double[] moments = calculateRawMoments(corners);
+//        double mu20 = moments[0];
+//        double mu02 = moments[1];
+//        double mu11 = moments[2];
+//
+//        if (mu20 - mu02 == 0) {
+//            return 0; // Evita divisão por zero
+//        }
+//
+//        double angle = 0.5 * Math.atan2(2 * mu11, mu20 - mu02);
+//        return Math.toDegrees(angle);
+//    }
+//
+//    private double[] calculateRawMoments(List<List<Double>> corners) {
+//        double m00 = 0, m10 = 0, m01 = 0, m20 = 0, m02 = 0, m11 = 0;
+//
+//        for (List<Double> point : corners) {
+//            if (point.size() < 2) continue; // Evita erros
+//
+//            double x = point.get(0);
+//            double y = point.get(1);
+//
+//            m00 += 1;
+//            m10 += x;
+//            m01 += y;
+//            m20 += x * x;
+//            m02 += y * y;
+//            m11 += x * y;
+//        }
+//
+//        if (m00 == 0) return new double[]{0, 0, 0}; // Evita divisão por zero
+//
+//        double cx = m10 / m00;
+//        double cy = m01 / m00;
+//        double mu20 = m20 / m00 - cx * cx;
+//        double mu02 = m02 / m00 - cy * cy;
+//        double mu11 = m11 / m00 - cx * cy;
+//
+//        return new double[]{mu20, mu02, mu11};
+//    }
+//
+////    public String calculateOrientation(double angle) {
+////        // Normaliza o ângulo para um intervalo de 0 a 180 graus
+////        double normalizedAngle = Math.abs(angle) % 180;
+////
+////
+////        if(gamepad1.left_bumper){
+////            return "Horizontal";
+////        } else if( gamepad1.right_bumper){
+////            return "Vertical";
+////        }
+////        return "Indefinido";
+////
+////    }
+//
+//
+//    private void Pipe() {
+//        if (gamepad1.b) {
+//            switchPipeline(1);
+//
+//        } else if (gamepad1.y) {
+//            switchPipeline(2);
+//
+//        } else if (gamepad1.x) {
+//            switchPipeline(0);
+//
+//        }
+    }
+
+//    private void switchPipeline(int pipeline) {
+//        if (currentPipeline != pipeline) {
+//            limelight.pipelineSwitch(pipeline);
+//            currentPipeline = pipeline;
+//            telemetry.addData("Pipeline Switch", "Mudando para " + pipeline);
+//            sleep(100); // Pequena pausa para garantir a mudança de pipeline
+//        }
+//    }
+//
+//}

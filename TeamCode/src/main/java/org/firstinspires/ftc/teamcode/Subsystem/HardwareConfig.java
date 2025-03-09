@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystem;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -32,8 +33,9 @@ public class HardwareConfig {
     public Servo clawOut;
     public DcMotor outtake;
 
-    public HardwareConfig(HardwareMap hardwareMap) {
 
+
+    public HardwareConfig(HardwareMap hardwareMap) {
 
 
         // Inicializando motores e definindo direções

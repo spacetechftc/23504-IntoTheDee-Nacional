@@ -36,43 +36,22 @@ public class RobotActions {
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
                     initialized = true;
-                    if(target != 0) {
-                        hw.outtakeSlideL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        hw.outtakeSlideR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        hw.outtakeSlideL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        hw.outtakeSlideR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    }
                     timer.reset();
                 }
 
                 double currentPositionLeft = hw.outtakeSlideL.getCurrentPosition();
-                double error = currentPositionLeft - target;
+                double error = target - currentPositionLeft;
 
 
                 double power = slidesMethods.returnPIDSlideOut(currentPositionLeft, target);
                 hw.outtakeSlideL.setPower(power);
                 hw.outtakeSlideR.setPower(power);
 
-                double outtakePower;
 
-                if(target == 3200){
-                    if(Slides_Methods.SlideOutIsAtSetpoint() || currentPositionLeft >= target - 100){
-
-                        hw.outtakeSlideL.setPower(0);
-                        hw.outtakeSlideR.setPower(0);
-                        return false;
-
-                    } else if (power > 0) {
-                        return true;// Valor fixo de descida
-                    }
-                }
-
-                if(Slides_Methods.SlideOutIsAtSetpoint()){
-
-                    hw.outtakeSlideL.setPower(0);
-                    hw.outtakeSlideR.setPower(0);
+                if(target == 3100 && error <5){
+                    hw.outtakeSlideL.setPower(0.1);
+                    hw.outtakeSlideR.setPower(0.1);
                     return false;
-
                 } else if (power > 0) {
                     return true;// Valor fixo de descida
                 }
@@ -80,26 +59,41 @@ public class RobotActions {
                 hw.outtake.setPower(0);
 
 
-
-                if(target == 0) {
-                    // Verificação de interrupção por sensores
-                    if (hw.tLeft.isPressed() || hw.tRight.isPressed()) {
-                        hw.outtakeSlideL.setPower(0);
-                        hw.outtakeSlideR.setPower(0);
-                        return false;
-                    }
-                }
-
-                if(timer.seconds() > 3.5){
+                // Verificação de interrupção por sensores
+                if (hw.tLeft.isPressed() || hw.tRight.isPressed()) {
                     hw.outtakeSlideL.setPower(0);
                     hw.outtakeSlideR.setPower(0);
-                    hw.outtake.setPower(0);
                     return false;
                 }
 
-                else{
+                if(timer.seconds() > 3.5){
+                    if (target == 3100) {
+                        hw.outtakeSlideL.setPower(0.1);
+                        hw.outtakeSlideR.setPower(0.1);
+                    } else if( target== 0 ){
+                        hw.outtakeSlideL.setPower(0);
+                        hw.outtakeSlideR.setPower(0);
+                    }
+                    return false;
+                }
+                // Verifica se o erro está dentro da tolerância
+                if (Math.abs(error) <= 5) {
+                    if (target == 3100) {
+                        hw.outtakeSlideL.setPower(0.1);
+                        hw.outtakeSlideR.setPower(0.1);
+                    } else if (target == 0){
+                        hw.outtakeSlideL.setPower(0);
+                        hw.outtakeSlideR.setPower(0);
+
+                    }
+                    return false;
+                } else{
                     return true;
                 }
+
+
+
+
 
             }
 
@@ -149,7 +143,7 @@ public class RobotActions {
                     hw.intakeSlide.setPower(-1);
                 }
 
-                if (timer.seconds() > 3) {
+                if (timer.seconds() > 1.5) {
                     hw.intakeSlide.setPower(0);
                     return false;
                 }
@@ -175,7 +169,12 @@ public class RobotActions {
                 hw.servoIntakeR.setPosition(Constants. INTAKE_COLETAR_VERTICAL_D);
                 packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
                 packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
+                if(hw.servoIntakeR.getPosition() == Constants.INTAKE_COLETAR_VERTICAL_D
+                        && hw.servoIntakeL.getPosition() == Constants.INTAKE_COLETAR_VERTICAL_L ) {
                 return false;
+                } else {
+                    return true;
+                }
             }
         }
 
@@ -204,6 +203,18 @@ public class RobotActions {
             }
         }
         public Action pass(){ return new Intake.IntakePD();}
+
+        public class IntakeHC implements  Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                hw.servoIntakeL.setPosition(Constants.INTAKE_COLETA_HORIZONTAL_L);
+                hw.servoIntakeR.setPosition(Constants.INTAKE_COLETA_HORIZOLTAL_D);
+                packet.put("servoIntakeL Position", hw.servoIntakeL.getPosition());
+                packet.put("servoIntakeR Position", hw.servoIntakeR.getPosition());
+                return false;
+            }
+        }
+        public Action HorColet(){ return new Intake.IntakeHC();}
     }
 
     public static class Outtake{
@@ -235,15 +246,12 @@ public class RobotActions {
                     timerout.reset();
                 }
 
-
-                if (target > 1){
-                    hw.outtake.setPower(1);
-                } else {
-                    hw.outtake.setPower(-1);
-                }
+                double outpower = 0.85 * target;
+                hw.outtake.setPower(outpower);
 
 
-                if (timerout.seconds() >1) {
+
+                if (timerout.seconds() >1.5) {
                     hw.outtake.setPower(0);
                     return false;
                 } else {
@@ -331,6 +339,7 @@ public class RobotActions {
             return new ClawOut.OpenClaw();
         }
     }
+
 
 
 }
