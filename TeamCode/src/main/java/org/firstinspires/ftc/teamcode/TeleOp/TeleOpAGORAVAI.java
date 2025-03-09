@@ -214,7 +214,7 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     currentArmState = !currentArmState;
                     if (currentArmState) {
                         action = 1;
-                            runningActions.add(new SequentialAction(
+                        runningActions.add(new SequentialAction(
                                     bracointake.VertColet()
                             ));
 
