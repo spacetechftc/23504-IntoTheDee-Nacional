@@ -188,22 +188,32 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                     Actions.runBlocking(new SequentialAction(
                             garraOut.openClaw(),
                             garraIn.closeClaw(),
-                            new SleepAction(0.5),
+                            new SleepAction(0.5)
+                    ));
+                    Actions.runBlocking(new SequentialAction(
                             bracointake.retract(),
-                            new SleepAction(1)
+                            new SleepAction(1),
+                            extensionControl.extendTarget(200)
+                    ));
+                    Actions.runBlocking(new SequentialAction(
+                            bracointake.pass(),
+                            new SleepAction(0.5)
 
                     ));
                     Actions.runBlocking(new SequentialAction(
-                            extensionControl.extendTarget(200),
-                            bracointake.pass(),
-                            new SleepAction(0.5),
                             garraOut.closeClaw(),
                             new SleepAction(0.5),
                             garraIn.openClaw()
                     ));
+
                     action = 0;
 
                 }
+
+
+
+
+
 
 
 
@@ -233,44 +243,25 @@ public class TeleOpAGORAVAI extends LinearOpMode {
                 //Garra Intake
                 boolean currentButtonLBState = gamepad2.left_bumper;
                 if (currentButtonLBState && !previousButtonLBState){
-                    currentstateClawIn = !currentstateClawIn;
-                    if (currentstateClawIn) {
-                        action = 1;
-                        runningActions.add(new SequentialAction(
-                                garraOut.openClaw()
-                        ));
-                        action = 0;
-                    } else{
-                        action = 1;
-                        runningActions.add(new SequentialAction(
-                                garraOut.closeClaw()
-                        ));
-                        action = 0;
+                    if(hw.clawOut.getPosition() == Constants.GARRA_OUTTAKE_FECHADA){
+                        hw.clawOut.setPosition(Constants.GARRA_OUTTAKE_ABERTA);
+                    } else if (hw.clawOut.getPosition() == Constants.GARRA_OUTTAKE_ABERTA){
+                        hw.clawOut.setPosition(Constants.GARRA_OUTTAKE_FECHADA);
                     }
-                }
 
+                }
                 previousButtonLBState = currentButtonLBState;
 
                 //Garra Outtake
                 boolean currentButtonRBState = gamepad2.right_bumper;
-
                 if (currentButtonRBState && !previousButtonRBState) {
-                    currentClawOutState = !currentClawOutState;
-                    if (currentClawOutState) {
-                        action = 1;
-                        runningActions.add(new SequentialAction(
-                                garraIn.midClaw()
-                        ));
-                        action = 0;
-                    } else{
-                        action = 1;
-                        runningActions.add(new SequentialAction(
-                                garraIn.closeClaw()
-                        ));
-                        action = 0;
+                    if(hw.clawIn.getPosition() == Constants.GARRA_INTAKE_FECHADA){
+                        hw.clawIn.setPosition(Constants.GARRA_INTAKE_ABERTA);
+                    } else if (hw.clawIn.getPosition() == Constants.GARRA_INTAKE_ABERTA){
+                        hw.clawIn.setPosition(Constants.GARRA_INTAKE_FECHADA);
                     }
-                }
 
+                }
                 previousButtonRBState = currentButtonRBState;
 
                 double intakePower = gamepad2.right_stick_y;

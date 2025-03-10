@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
-        Pose2d initialPose = new Pose2d(-10, 61, Math.toRadians(90));
+        Pose2d initialPose = new Pose2d(38, 61, Math.toRadians(270));
 
         VelConstraint baseVelConstraint = new MinVelConstraint(Arrays.asList(
                 new TranslationalVelConstraint(50.0),
@@ -36,10 +36,8 @@ public class MeepMeepTesting {
 
         myBot.runAction(myBot.getDrive().actionBuilder(initialPose)
                 //Deposito
-                .lineToYConstantHeading(27)
-                .lineToYConstantHeading(55)
-                .turnTo(Math.toRadians(180))
-
+                .lineToYConstantHeading(58)
+                .strafeToLinearHeading(new Vector2d(30, 58), Math.toRadians(270))
                 .endTrajectory()
                 .build());
 
