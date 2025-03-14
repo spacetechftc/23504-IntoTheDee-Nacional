@@ -15,6 +15,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -32,7 +33,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.Tuning.TuningOpModes;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "TeleOpAGORAVAI", group = ("TeleOp"))
+@Disabled
 public class TeleOpAGORAVAI extends LinearOpMode {
 
     double action = 0;

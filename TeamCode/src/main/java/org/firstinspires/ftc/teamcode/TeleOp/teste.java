@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Subsystem;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -7,13 +7,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Subsystem.HardwareConfig;
+import org.firstinspires.ftc.teamcode.Subsystem.Valores.Constants;
+
 import java.util.List;
 import java.util.ArrayList;
 
-import org.firstinspires.ftc.teamcode.Subsystem.Valores.Constants;
 
-@TeleOp(name = "Sensor: teste ", group = "Control")
+
+@TeleOp(name = "Sensor: Limelight ", group = "Control")
 public class teste extends LinearOpMode {
+
+    HardwareConfig hw = new HardwareConfig(hardwareMap);
 
     private Limelight3A limelight;
     private Servo S1;
@@ -21,7 +26,6 @@ public class teste extends LinearOpMode {
     private String orientacao;
     private int validDetectionCount = 0;
     double robotAngle;
-    HardwareConfig hw = new HardwareConfig(hardwareMap);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -150,11 +154,11 @@ public class teste extends LinearOpMode {
 
     public void servoControl() {
         if (orientacao.equals("Horizontal")) {
-            hw.servoIntakeR.setPosition(Constants.INTAKE_COLETA_HORIZOLTAL_D);
             hw.servoIntakeL.setPosition(Constants.INTAKE_COLETA_HORIZONTAL_L);
+            hw.servoIntakeR.setPosition(Constants.INTAKE_COLETA_HORIZOLTAL_D);
         } else if (orientacao.equals("Vertical")) {
-            hw.servoIntakeR.setPosition(Constants.INTAKE_COLETA_HORIZOLTAL_D);
-            hw.servoIntakeL.setPosition(Constants.INTAKE_COLETA_HORIZONTAL_L);
+            hw.servoIntakeL.setPosition(Constants.INTAKE_COLETAR_VERTICAL_L);
+            hw.servoIntakeR.setPosition(Constants.INTAKE_COLETAR_VERTICAL_D);
         }
     }
 

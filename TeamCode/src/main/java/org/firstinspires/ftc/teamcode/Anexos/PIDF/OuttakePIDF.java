@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Subsystem.HardwareConfig;
 import org.firstinspires.ftc.teamcode.Subsystem.Valores.ValoresPIDFOuttake;
 
 @Config
-@TeleOp
+@Disabled
 public class OuttakePIDF extends LinearOpMode {
 
     public static double p = ValoresPIDFOuttake.p , i = ValoresPIDFOuttake.i, d = ValoresPIDFOuttake.d;

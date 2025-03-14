@@ -48,7 +48,7 @@ public class RobotActions {
                 hw.outtakeSlideR.setPower(power);
 
 
-                if((target == 3100 || target == 1130 || target == 1275) && error <5){
+                if((target == 3000 || target == 1130 || target == 1275) && error <10){
                     hw.outtakeSlideL.setPower(0.1);
                     hw.outtakeSlideR.setPower(0.1);
                     return false;
@@ -70,7 +70,7 @@ public class RobotActions {
                 }
 
                 if(timer.seconds() > 3.5){
-                    if ((target == 3100 || target == 1130) || (target == 1275)) {
+                    if ((target == 3000 || target == 1130) || (target == 1275)) {
                         hw.outtakeSlideL.setPower(0.1);
                         hw.outtakeSlideR.setPower(0.1);
                     } else if( target== 0 ){
@@ -80,8 +80,8 @@ public class RobotActions {
                     return false;
                 }
                 // Verifica se o erro está dentro da tolerância
-                if (Math.abs(error) <= 5) {
-                    if ((target == 3100 || target == 1130) || (target == 1275)) {
+                if (Math.abs(error) <= 10) {
+                    if ((target == 3000 || target == 1130) || (target == 1275)) {
                         hw.outtakeSlideL.setPower(0.1);
                         hw.outtakeSlideR.setPower(0.1);
                     } else if (target == 0){
@@ -157,6 +157,45 @@ public class RobotActions {
 
         public Action extendTarget(int target) {
             return new ExtendToTarget(target);
+        }
+
+        public class ExtendTLit implements Action {
+
+            private boolean initialized = false;
+            private final int target;
+
+            public ExtendTLit(int target) {
+                this.target = target;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    timer.reset();
+                    initialized = true;
+                }
+
+                double currentPosition = hw.intakeSlide.getCurrentPosition();
+                double power = slidesMethods.returnPIDIn(currentPosition, target);
+
+
+                if(target > 0){
+                    hw.intakeSlide.setPower(power);
+                } else {
+                    hw.intakeSlide.setPower(power);
+                }
+
+                if (timer.seconds() > 0.7) {
+                    hw.intakeSlide.setPower(0);
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        public Action extendTLit(int target) {
+            return new ExtendTLit(target);
         }
     }
 

@@ -25,8 +25,8 @@ import org.firstinspires.ftc.teamcode.Subsystem.HardwareConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "TeleOpAGORAVAI", group = "TeleOp")
-public class TeleOpDeepSeek extends LinearOpMode {
+@TeleOp(name = "IntakeControl", group = "TeleOp")
+public class InControl extends LinearOpMode {
 
     private boolean currentArmState = false;
     private boolean previousXButtonState = false;
@@ -104,6 +104,18 @@ public class TeleOpDeepSeek extends LinearOpMode {
                                 garraIn.openClaw()
                         ));
                     }
+
+
+
+                    if(gamepad2.y){
+                        Actions.runBlocking(new SequentialAction(
+                                extensionControl.extendTLit(-200)
+                        ));
+                    }
+
+
+
+
 
                     // Controle do braço de intake
                     boolean currentXButtonState = gamepad2.x;
